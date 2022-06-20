@@ -24,7 +24,7 @@ async function Login(Issuer) {
 	     }
 
     }
-    //OIDC error message 
+    //OIDC error message
 }
 //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 async function toHide(){
@@ -36,13 +36,13 @@ async function toHide(){
 async function stepstoExecute(){
             document.getElementById('start_posting').classList.remove('hidden');
             document.getElementById('start_posting').addEventListener('click', async () => { await GetCoordinates(); await fetchLocations();
-                                document.getElementById('map').classList.remove('hidden');document.getElementById('start_posting').classList.add('hidden'); 
+                                document.getElementById('map').classList.remove('hidden');document.getElementById('start_posting').classList.add('hidden');
                                 document.getElementById('stop').classList.remove('hidden');document.getElementById('req_frnd').classList.remove('hidden');
                                 });
 }
 //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 async function handleRedirectAfterLogin() {
-       await handleIncomingRedirect();              
+       await handleIncomingRedirect();
        if(getDefaultSession().info.isLoggedIn){
           await toHide();
           document.getElementById('output').textContent="Session logged in!";
@@ -72,7 +72,7 @@ async function getIssuerFromWebID(webid){
     sources: [`${webid}`],
   });
   const bindings = await bindingsStream.toArray();
-  return(bindings[0].get('o').value);  
+  return(bindings[0].get('o').value);
 }
 //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 async function getDataFromWebID(webid){
@@ -94,7 +94,7 @@ async function getDataFromWebID(webid){
 }
 //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // Execute the following on the following button clicks!
-document.getElementById('webid_Login').addEventListener('click', async () => { let webID = document.getElementById('webid').value; 
+document.getElementById('webid_Login').addEventListener('click', async () => { let webID = document.getElementById('webid').value;
             try{let oidcIssuer=await getIssuerFromWebID(webID);window.sessionStorage.setItem('webID_later',webID);
                 window.sessionStorage.setItem('oidcIssuer_later',oidcIssuer); await Login(oidcIssuer);}
             catch(error){
@@ -116,14 +116,14 @@ switch(Object.keys(window.sessionStorage)[0]){
 
   case "webID_later":
   pod_url=window.sessionStorage.getItem('oidcIssuer_later');
-  container=pod_url+'public/YourLocationHistory/Data/';  
+  container=pod_url+'public/YourLocationHistory/Data/';
   break;
 
   case "oidcIssuer_later":
     pod_url=window.sessionStorage.getItem('oidcIssuer_later');
-    container=pod_url+'public/YourLocationHistory/Data/';  
+    container=pod_url+'public/YourLocationHistory/Data/';
     break;
-    }  
+    }
 }
 //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 async function GivePublicAccesstotheInbox(){
@@ -167,7 +167,7 @@ async function createInbox(){
 async function sendNotifications(file_frnd){
   //Storing all participant pod urls in my solid comunity pod.
   const query= `INSERT DATA {<> <http://tobeadded.com/LocationRequestedBy> <${window.sessionStorage.getItem('webID_later')}>.}`;
-    // Send a PATCH request the pod url to inbox.ttl 
+    // Send a PATCH request the pod url to inbox.ttl
       const response = await fetch(file_frnd, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/sparql-update' },
@@ -176,12 +176,12 @@ async function sendNotifications(file_frnd){
     if(300<response.status&&response.status<600){
       console.log(` Error code is ${response.status} Your friend may not have used our app yet!`);
     }
-} 
+}
 //----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 async function sendRequestAcceptedNotification(rqstr_webid){
     const rqstr_issuer=await getIssuerFromWebID(rqstr_webid);
     const query= `INSERT DATA {<${window.sessionStorage.getItem('webID_later')}> <http://tobeadded.com/GrantedAccessToLocation> <${container}>.}`;
-    // Send a PATCH request the pod url to inbox.ttl 
+    // Send a PATCH request the pod url to inbox.ttl
       const response = await fetch(rqstr_issuer+'public/YourLocationHistory/inbox.ttl', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/sparql-update' },
@@ -190,7 +190,7 @@ async function sendRequestAcceptedNotification(rqstr_webid){
     if(300<response.status&&response.status<600){
       console.log(` HTTP fetch Error code is ${response.status} Your friend may not have used our app yet!`)
     }
-} 
+}
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 let response_data;
 async function addRequestingPersontoACL(webid_rqstr){
@@ -218,7 +218,7 @@ async function addRequestingPersontoACL(webid_rqstr){
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 var myEngine_getNots = new QueryEngine();
 let rqstr_webid_array=new Array();
-async function getRequestNotifications(){   
+async function getRequestNotifications(){
   const file=container.split('Data')[0]+'inbox.ttl';
   const bindingsStream = await myEngine_getNots.queryBindings(`
   SELECT ?o WHERE {
@@ -235,7 +235,7 @@ async function getRequestNotifications(){
             rqstr_webid_array.push(element.get('o').value)
           }
           document.getElementById(element.get('o').value).addEventListener('click',async ()=>{await approvedSentNotification(element.get('o').value);await addRequestingPersontoACL(element.get('o').value);});
-  });  
+  });
   const bindingsStream_ = await myEngine_getNots.queryBindings(`
   SELECT ?o WHERE {
    ?s <http://tobeadded.com/YouGrantedAccessTo> ?o.
@@ -244,8 +244,8 @@ async function getRequestNotifications(){
     fetch: myfetchFunction,
   });
   myEngine_getNots.invalidateHttpCache();
-  const bindings_ = await bindingsStream_.toArray(); 
-  bindings_.forEach((element)=>{   
+  const bindings_ = await bindingsStream_.toArray();
+  bindings_.forEach((element)=>{
     if(document.getElementById(`r_${element.get('o').value}`)==null){
             document.getElementById("approve_revoke").innerHTML+=` <button type="button" id="r_${element.get('o').value}" >Revoke ${element.get('o').value}</button>`;
             document.getElementById(`r_${element.get('o').value}`).addEventListener('click',async ()=>{await revokingPersonAccessfromACL(element.get('o').value);await removeAccessNotification(element.get('o').value)});
@@ -266,7 +266,7 @@ async function getRequestNotifications(){
         const response = await solidfetch(container+'.acl', {
         method: 'GET',
         headers: { 'Content-Type': 'text/turtle' },
-        }).then(response_=>response_.text()).then(async (data)=>{ response_data=data; 
+        }).then(response_=>response_.text()).then(async (data)=>{ response_data=data;
                     if(response_data.includes(query_extra)){
                         const query = response_data.split(query_extra).join('\n');
                         const response_put = await solidfetch(container+'.acl', {
@@ -275,13 +275,13 @@ async function getRequestNotifications(){
                           body: query});
                       }
           });
-   await deleteRequestAcceptedNotification(rvk_aprvd_webid);    
+   await deleteRequestAcceptedNotification(rvk_aprvd_webid);
   }
   //---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
   async function deleteRequestAcceptedNotification(rqstr_webid){
     const rqstr_issuer=await getIssuerFromWebID(rqstr_webid);
     const query= `DELETE DATA {<${window.sessionStorage.getItem('webID_later')}> <http://tobeadded.com/GrantedAccessToLocation> <${container}>.}`;
-        // Send a PATCH request the pod url to inbox.ttl 
+        // Send a PATCH request the pod url to inbox.ttl
         const response = await fetch(rqstr_issuer+'public/YourLocationHistory/inbox.ttl', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/sparql-update' },
@@ -294,7 +294,7 @@ async function getRequestNotifications(){
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 async function approvedSentNotification(apprvd_rqstr_webid){
     const query= `DELETE DATA {<> <http://tobeadded.com/LocationRequestedBy> <${apprvd_rqstr_webid}>.}`;
-        // Send a PATCH request the pod url to names.ttl 
+        // Send a PATCH request the pod url to names.ttl
         const response = await fetch(container.split("/Data/")[0]+"/inbox.ttl", {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/sparql-update' },
@@ -305,7 +305,7 @@ async function approvedSentNotification(apprvd_rqstr_webid){
     }
     else{
       const query= `INSERT DATA {<> <http://tobeadded.com/YouGrantedAccessTo> <${apprvd_rqstr_webid}>.}`;
-          // Send a PATCH request the pod url to names.ttl 
+          // Send a PATCH request the pod url to names.ttl
           const response = await fetch(container.split("/Data/")[0]+"/inbox.ttl", {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/sparql-update' },
@@ -319,7 +319,7 @@ async function approvedSentNotification(apprvd_rqstr_webid){
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 async function removeAccessNotification(rm_rqstr_webid){
     const query= `DELETE DATA {<> <http://tobeadded.com/YouGrantedAccessTo> <${rm_rqstr_webid}>.}`;
-        // Send a PATCH request the pod url to names.ttl 
+        // Send a PATCH request the pod url to names.ttl
         const response = await fetch(container.split("/Data/")[0]+"/inbox.ttl", {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/sparql-update' },
@@ -331,10 +331,10 @@ async function removeAccessNotification(rm_rqstr_webid){
 }
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 var myEngine_getURLs=new QueryEngine();
-async function getAccessGrantedNotifications(){     
+async function getAccessGrantedNotifications(){
   let lctn_container=new Array();
   let acptr_webid=new Array();
-  const file=container.split('Data')[0]+'inbox.ttl';  
+  const file=container.split('Data')[0]+'inbox.ttl';
     const bindingsStream = await myEngine_getURLs.queryBindings(`
     SELECT ?acptr_webid ?lctn_container WHERE {
            ?acptr_webid  <http://tobeadded.com/GrantedAccessToLocation> ?lctn_container.
@@ -344,8 +344,8 @@ async function getAccessGrantedNotifications(){
     });
     myEngine_getURLs.invalidateHttpCache();
   const bindings = await bindingsStream.toArray();
-  bindings.forEach((element1,element2)=>{acptr_webid.push(element1.get('acptr_webid').value),lctn_container.push(element1.get('lctn_container').value)});  
-  return {acptr_webid,lctn_container}; 
+  bindings.forEach((element1,element2)=>{acptr_webid.push(element1.get('acptr_webid').value),lctn_container.push(element1.get('lctn_container').value)});
+  return {acptr_webid,lctn_container};
 }
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 async function fetchWebid_Container(acptr_webid,lctn_container){
@@ -389,12 +389,12 @@ async function GetCoordinates(){
         marker.setLatLng([position.coords.latitude,position.coords.longitude]);
 
         const query = `<> <https://schema.org/latitude> "${position.coords.latitude}";<https://schema.org/longitude> "${position.coords.longitude}";<http://purl.org/dc/terms/created> "${position.timestamp}".`
-
+        const body = createObservationBody(getDefaultSession().info.webId,position.coords.latitude,position.coords.longitude,position.coords.altitude, position.timestamp)
           // Send a PUT request to post to the source
           const response = await solidfetch(container+`${position.timestamp}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'text/turtle' },
-          body: query,
+          body: body,
           credentials: 'include'
           });
 
@@ -403,10 +403,46 @@ async function GetCoordinates(){
       },optn);
   }
 };
+
+//---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+function createObservationBody(webid, latitude, longitude, elevation, timestamp){
+    const date = new Date(timestamp)
+    // observation needs to be uuid
+    const body =
+`@prefix sosa: <http://www.w3.org/ns/sosa/>.
+@prefix wgs84: <http://www.w3.org/2003/01/geo/wgs84_pos#>.
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
+@prefix tm:\t<https://w3id.org/transportmode#> .
+@prefix geo: <http://www.opengis.net/ont/geosparql#>.
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+<phone> a sosa:Platform;
+    sosa:hosts <locationSensor>.
+<locationSensor> a sosa:Sensor;
+    sosa:madeObservation <locationObservation>;
+    sosa:observes <location>;
+    sosa:isHostedBy <phone>.
+<locationObservation_${timestamp}> a sosa:Observation;
+    sosa:hasResult <locationObservation_result>;
+    sosa:hasFeatureOfInterest <${webid}> ;
+    sosa:observedProperty <location> ;
+    sosa:hasSimpleResult "POINT(${longitude} ${latitude})"^^geo:wktLiteral ;
+    sosa:madeBySensor <locationSensor>;
+    sosa:resultTime "${date.toISOString()}"^^xsd:dateTime.
+<locationObservation_${timestamp}_result> a sosa:Result;
+    wgs84:lon ${longitude};
+    wgs84:lat ${latitude};
+    wgs84:alt ${elevation};
+    tm:transportMode tm:Walking.
+<location> a sosa:ObservableProperty;
+    rdfs:comment "The Geographic location observed by a sensor."@en ;
+    rdfs:label "Location"@en .
+<${webid}> a sosa:FeatureOfInterest.`
+    return body
+}
 //---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 async function test(friend_container){
       var myEngine = new QueryEngine();
-        // Fetch the latest timestamp  
+        // Fetch the latest timestamp
         let bindingsStream;
         try{ bindingsStream= await myEngine.queryBindings(`
         SELECT (STRAFTER(?fileName, "/YourLocationHistory/Data/") AS ?tmstmp) 
@@ -419,7 +455,7 @@ async function test(friend_container){
           fetch: myfetchFunction,
           httpIncludeCredentials:true
         });
-        myEngine.invalidateHttpCache(); 
+        myEngine.invalidateHttpCache();
 
 
       // Consume results as an array (easier)
@@ -438,7 +474,7 @@ async function test(friend_container){
       });
 
       const bindings_1 = await bindingsStream_1.toArray();
-      
+
       //Return the latest Latitude and Longitude:
       const lat_long_list=[bindings_1[0].get('lat').value,bindings_1[0].get('long').value];
       let loc_array=[lat_long_list,tmstmp]
@@ -462,12 +498,12 @@ async function getLatLongofFriend(friend_webid,friend_container){
   const lat_long_list = loc_array[0];
   const tmstmp_ =loc_array[1];
     if (lat_long_list) {
-      map.eachLayer(function (layer) { 
+      map.eachLayer(function (layer) {
         if(layer._content){
            if(layer._content.split('\r\n')[0]==data_array[0]+` ${data_array[1]}`){
               // console.log(`removing _tooltip: ${layer}`);
               map.removeLayer(layer);
-            }  
+            }
         }
         if(layer._tooltipHandlersAdded){
           if(layer._tooltip._content.split('\r\n')[0]==data_array[0]+` ${data_array[1]}`){
@@ -478,7 +514,7 @@ async function getLatLongofFriend(friend_webid,friend_container){
       });
     let friendMarker;
     if(data_array[2]==''){//If the user doesn't have the foaf:img triple
-      friendMarker = L.marker(lat_long_list);      
+      friendMarker = L.marker(lat_long_list);
     }
     else{
       var friend_image = L.icon({
@@ -486,7 +522,7 @@ async function getLatLongofFriend(friend_webid,friend_container){
       iconSize:     [30, 30], // size of the icon
       iconAnchor:   [15, 15] // point of the icon which will correspond to marker's location
       });
-      friendMarker = L.marker(lat_long_list,{icon: friend_image});                
+      friendMarker = L.marker(lat_long_list,{icon: friend_image});
     }
     friendMarker.addTo(map);
     friendMarker._icon.classList.add("huechange");
@@ -523,4 +559,4 @@ async function giveAccessoftheContainertoOwner(){
 }
 //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
- 
+
